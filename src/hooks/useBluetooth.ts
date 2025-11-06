@@ -88,20 +88,25 @@ export function useBluetooth(): UseBluetoothReturn {
 
   // 특성 값 변경 핸들러
   const handleCharacteristicValueChanged = useCallback((event: any) => {
-    const value = event.target.value.getUint8(0);
-    console.log("❤️ BPM:", value);
+    const heartRate = event.target.value.getUint8(0);
+    const postureScore = event.target.value.getUint8(1); // 0~100 자세 평가 점수
+
+    console.log("❤️ BPM:", heartRate, "| 🧍 자세 점수:", postureScore);
 
     // 심박수 기반으로 활동 상태 추정
     let activityState: ActivityState = "stopped";
-    if (value >= 120) {
+    if (heartRate >= 120) {
       activityState = "running";
-    } else if (value >= 90) {
+    } else if (heartRate >= 90) {
       activityState = "walking";
     }
 
+    // 자세 점수를 기반으로 정확도 계산 (0~100 범위 유지)
+    const accuracy = postureScore;
+
     const newData: WearableData = {
-      accuracy: 95, // 기본값
-      heartRate: value,
+      accuracy: accuracy,
+      heartRate: heartRate,
       activityState,
       stepCount: 0, // 기본값
       timestamp: Date.now(),

@@ -220,7 +220,7 @@ export function WearableMonitor({ data, isConnected }: WearableMonitorProps) {
             {data?.accuracy || "-"}
             <span className="text-xl text-gray-400 ml-2">%</span>
           </div>
-          <div className="text-sm text-gray-400">데이터 정확도</div>
+          <div className="text-sm text-gray-400">자세 정확도</div>
         </div>
       </div>
 
