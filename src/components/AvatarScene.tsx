@@ -1,20 +1,26 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
 import { Avatar } from "./Avatar";
-import { PosturePattern, RiskLevel } from "@/types";
+import { ActivityState, RiskLevel } from "@/types";
 import { getRiskColor } from "@/utils/postureMapping";
 
 interface AvatarSceneProps {
-  pattern: PosturePattern;
+  activityState: ActivityState;
   riskLevel: RiskLevel;
 }
 
-export function AvatarScene({ pattern, riskLevel }: AvatarSceneProps) {
+export function AvatarScene({ activityState, riskLevel }: AvatarSceneProps) {
   const { primary } = getRiskColor(riskLevel);
   const controlsRef = useRef<any>(null);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // 실시간 업데이트 추적
+  useEffect(() => {
+    setLastUpdate(Date.now());
+  }, [activityState, riskLevel]);
 
   const handleResetView = () => {
     if (controlsRef.current) {
@@ -24,6 +30,8 @@ export function AvatarScene({ pattern, riskLevel }: AvatarSceneProps) {
 
   return (
     <div className="relative w-full h-full rounded-2xl overflow-hidden bg-linear-to-br from-gray-900 to-gray-800">
+      
+
       {/* 시점 초기화 버튼 */}
       <button
         onClick={handleResetView}
@@ -57,10 +65,10 @@ export function AvatarScene({ pattern, riskLevel }: AvatarSceneProps) {
         />
 
         {/* 그리드 바닥 */}
-        <gridHelper args={[10, 10, primary, "gray"]} position={[0, -1, 0]} />
+        <gridHelper args={[10, 10, primary, "gray"]} position={[0, -0.75, 0]} />
 
         {/* 3D 아바타 */}
-        <Avatar pattern={pattern} riskColor={primary} />
+        <Avatar activityState={activityState} riskColor={primary} />
 
         {/* 배경 안개 효과 */}
         <fog attach="fog" args={[primary, 5, 15]} />

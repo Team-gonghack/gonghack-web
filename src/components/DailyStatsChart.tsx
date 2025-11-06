@@ -18,7 +18,7 @@ interface DailyStatsChartProps {
 
 export function DailyStatsChart({ stats }: DailyStatsChartProps) {
   const data = {
-    labels: ["안전", "주의", "경고"],
+    labels: ["멈춤", "걷기", "달리기"],
     datasets: [
       {
         data: [stats.safe, stats.warning, stats.danger],

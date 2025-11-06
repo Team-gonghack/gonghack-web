@@ -84,7 +84,7 @@ gonghack-web/
 
 ### 📊 차트 시각화
 
-- **DailyStatsChart**: 안전/주의/경고 비율을 도넛 차트로 표시
+- **DailyStatsChart**: 멈춤/걷기/달리기 비율을 도넛 차트로 표시
 - **TimelineChart**: 시간에 따른 위험도 점수 추이
 
 ### 🎨 Glow 효과
