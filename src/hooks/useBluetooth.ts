@@ -67,15 +67,15 @@ export function useBluetooth(): UseBluetoothReturn {
       );
 
       setIsConnected(true);
-      console.log("✅ 블루투스 디바이스 연결 완료:", device.name);
+      console.log("블루투스 디바이스 연결 완료:", device.name);
     } catch (err) {
       // 사용자가 연결을 취소한 경우
       if (err instanceof Error && err.message.includes("User cancelled")) {
-        console.log("ℹ️ 사용자가 블루투스 연결을 취소했습니다.");
+        console.log("사용자가 블루투스 연결을 취소했습니다.");
         // 오류로 표시하지 않음
         setError(null);
       } else {
-        console.error("❌ 블루투스 연결 오류:", err);
+        console.error("블루투스 연결 오류:", err);
         // 실제 오류인 경우에만 에러 메시지 설정
         setError(
           err instanceof Error ? err.message : "블루투스 연결에 실패했습니다."
@@ -90,16 +90,26 @@ export function useBluetooth(): UseBluetoothReturn {
   const handleCharacteristicValueChanged = useCallback((event: any) => {
     const heartRate = event.target.value.getUint8(0);
     const postureScore = event.target.value.getUint8(1); // 0~100 자세 평가 점수
+    const statusCode = event.target.value.getUint8(2); // 0: 걷기, 1: 뛰기, 2: 멈춤
 
-    console.log("❤️ BPM:", heartRate, "| 🧍 자세 점수:", postureScore);
-
-    // 심박수 기반으로 활동 상태 추정
+    // 상태 코드를 활동 상태로 매핑
     let activityState: ActivityState = "stopped";
-    if (heartRate >= 120) {
-      activityState = "running";
-    } else if (heartRate >= 90) {
+    if (statusCode === 0) {
       activityState = "walking";
+    } else if (statusCode === 1) {
+      activityState = "running";
+    } else if (statusCode === 2) {
+      activityState = "stopped";
     }
+
+    console.log(
+      "BPM:",
+      heartRate,
+      "| 자세 점수:",
+      postureScore,
+      "| 상태:",
+      activityState
+    );
 
     // 자세 점수를 기반으로 정확도 계산 (0~100 범위 유지)
     const accuracy = postureScore;
@@ -127,19 +137,19 @@ export function useBluetooth(): UseBluetoothReturn {
         // 연결이 되어있는 경우에만 stopNotifications 호출
         if (deviceRef.current?.gatt?.connected) {
           characteristicRef.current.stopNotifications().catch((err) => {
-            console.log("ℹ️ Notification 중지 중 오류 (무시됨):", err.message);
+            console.log("Notification 중지 중 오류 (무시됨):", err.message);
           });
         }
       }
 
       if (deviceRef.current?.gatt?.connected) {
         deviceRef.current.gatt.disconnect();
-        console.log("🔌 블루투스 디바이스 연결 해제");
+        console.log("블루투스 디바이스 연결 해제");
       } else {
-        console.log("ℹ️ 이미 연결이 해제된 상태입니다.");
+        console.log("이미 연결이 해제된 상태입니다.");
       }
     } catch (err) {
-      console.log("ℹ️ 연결 해제 중 오류 (무시됨):", err);
+      console.log("연결 해제 중 오류 (무시됨):", err);
     } finally {
       // 상태는 항상 초기화
       setIsConnected(false);
