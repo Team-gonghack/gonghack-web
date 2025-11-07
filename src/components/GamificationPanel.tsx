@@ -51,7 +51,7 @@ export function GamificationPanel({
             <p className="text-lg mt-1">걸음</p>
           </div>
           <div className="text-right">
-            <div className="text-3xl mb-1">🚶</div>
+            <div className="text-3xl mb-1"></div>
             <div className="text-sm opacity-80">
               목표: {dailyStepGoal.toLocaleString()}보
             </div>

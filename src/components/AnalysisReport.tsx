@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,6 +11,10 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import {
+  loadSessionData,
+  createDefaultSessionData,
+} from "@/utils/sessionStorage";
 
 ChartJS.register(
   CategoryScale,
@@ -28,32 +32,48 @@ interface SessionData {
 }
 
 export function AnalysisReport() {
-  // 시뮬레이션 데이터: 가장 최근 연결 세션의 시간대별 자세 교정 필요 횟수
-  const sessionData: SessionData[] = useMemo(
-    () => [
-      { period: "0-10분", corrections: 3, duration: 10 },
-      { period: "10-20분", corrections: 5, duration: 10 },
-      { period: "20-30분", corrections: 7, duration: 10 },
-      { period: "30-40분", corrections: 9, duration: 10 },
-      { period: "40-50분", corrections: 11, duration: 10 },
-      { period: "50-60분", corrections: 8, duration: 10 },
-    ],
-    []
+  // 세션 스토리지에서 데이터 불러오기
+  const [sessionData, setSessionData] = useState<SessionData[]>(
+    createDefaultSessionData()
   );
 
-  const totalCorrections = sessionData.reduce(
-    (sum, d) => sum + d.corrections,
-    0
+  useEffect(() => {
+    // 클라이언트에서만 실행
+    const storedData = loadSessionData();
+    if (storedData) {
+      setSessionData(storedData);
+    } else {
+      // 저장된 데이터가 없으면 기본 데이터 사용
+      setSessionData(createDefaultSessionData());
+    }
+  }, []);
+
+  const totalCorrections = useMemo(
+    () => sessionData.reduce((sum, d) => sum + d.corrections, 0),
+    [sessionData]
   );
-  const totalDuration = sessionData.reduce((sum, d) => sum + d.duration, 0);
-  const avgCorrectionsPerPeriod = (
-    totalCorrections / sessionData.length
-  ).toFixed(1);
-  const correctionsPerHour = ((totalCorrections / totalDuration) * 60).toFixed(
-    1
+
+  const totalDuration = useMemo(
+    () => sessionData.reduce((sum, d) => sum + d.duration, 0),
+    [sessionData]
   );
-  const peakPeriod = sessionData.reduce((max, d) =>
-    d.corrections > max.corrections ? d : max
+
+  const avgCorrectionsPerPeriod = useMemo(
+    () => (totalCorrections / sessionData.length).toFixed(1),
+    [totalCorrections, sessionData.length]
+  );
+
+  const correctionsPerHour = useMemo(
+    () => ((totalCorrections / totalDuration) * 60).toFixed(1),
+    [totalCorrections, totalDuration]
+  );
+
+  const peakPeriod = useMemo(
+    () =>
+      sessionData.reduce((max, d) =>
+        d.corrections > max.corrections ? d : max
+      ),
+    [sessionData]
   );
 
   const chartData = {

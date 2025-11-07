@@ -213,7 +213,9 @@ export function WearableMonitor({ data, isConnected }: WearableMonitorProps) {
                 ? "우수"
                 : (data?.accuracy || 0) >= 60
                 ? "양호"
-                : "불량"}
+                : (data?.accuracy || 0) > 0
+                ? "불량"
+                : "-"}
             </span>
           </div>
           <div className="text-5xl font-bold text-white mb-2">
@@ -227,7 +229,6 @@ export function WearableMonitor({ data, isConnected }: WearableMonitorProps) {
       {/* 심박수 차트 */}
       <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800">
         <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-          <span>📈</span>
           실시간 심박수 추이
         </h3>
         <div className="h-72">
